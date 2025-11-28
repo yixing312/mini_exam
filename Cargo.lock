@@ -4553,15 +4553,16 @@ checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
 
 [[package]]
 name = "libjaka"
-version = "0.1.9"
+version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec59d86538e278e4d9a212d4a18ca558c4954a758870dfc76185be286a503887"
+checksum = "f08354fee21dd4f9c768a1dadffc93940f7769a00cfdbe68936e9160b85fa75b"
 dependencies = [
  "bincode",
  "cxx-build",
  "nalgebra",
  "paste",
  "robot_behavior",
+ "rsruckig",
  "serde",
  "serde_json",
  "serde_repr",
@@ -8706,9 +8707,9 @@ checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
 
 [[package]]
 name = "rsbullet"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5df0c8bb6fc5c02bb92829a3bde3046d3422091fb71962dbede49253f10c9ca1"
+checksum = "8e6d43a6b5ff30b9181247ab805518a26c45db3f5bb678d44bf64c529670ced8"
 dependencies = [
  "anyhow",
  "nalgebra",
@@ -8737,6 +8738,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf9fce777de360440c5fdad0df61e562e841b9e8cfa7084aa8e67d9fc4638ef7"
 dependencies = [
  "cmake",
+]
+
+[[package]]
+name = "rsruckig"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3eab48a3d58a55d866b5146fb06d87e76417f60214eb22ef381aa2ffaa37bb02"
+dependencies = [
+ "arrayvec",
+ "num-traits",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
