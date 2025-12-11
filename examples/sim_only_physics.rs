@@ -2,7 +2,7 @@ use std::{f64::consts::FRAC_PI_2, time::Duration};
 
 use libjaka::JakaMini2;
 use robot_behavior::behavior::*;
-use rsbullet::{Mode, RsBullet};
+use rsbullet::{Mode, RsBullet, RsBulletRobot};
 
 fn main() -> anyhow::Result<()> {
     let mut physics = RsBullet::new(Mode::Gui)?;
@@ -13,7 +13,7 @@ fn main() -> anyhow::Result<()> {
         .set_step_time(Duration::from_secs_f64(1. / 240.))?;
 
     // 仿真器基础配置
-    let mut robot = physics
+    let mut robot: RsBulletRobot<JakaMini2> = physics
         .robot_builder::<JakaMini2>("exam_robot")
         .base([0., 0., 0.])
         .load()?;
