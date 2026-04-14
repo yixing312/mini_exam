@@ -4,10 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-robot_behavior = "0.5.1"
-libjaka = "0.1.10"
-rsbullet = "0.3.3"
-roplat_rerun = "0.1.1"
-anyhow = "1.0.100"
+robot_behavior = "0.5.3"
+libjaka = "0.1.14"
+rsbullet = "0.3.10"
+anyhow = "1.0.102"
 nalgebra = "0.34.1"
-franka_rust = "0.1.11"
+franka_rust = "0.1.14"
+
+roplat_rerun = {version = "0.1.1", optional = true}
+
+[features]
+rerun = ["roplat_rerun"]

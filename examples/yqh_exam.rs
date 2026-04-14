@@ -6,10 +6,12 @@ use std::{
 use franka_rust::FrankaEmika;
 use nalgebra as na;
 use robot_behavior::{Pose, behavior::*};
+#[cfg(feature = "rerun")]
 use roplat_rerun::RerunHost;
 use rsbullet::RsBullet; // 引入 nalgebra 处理数学计算
 
 fn main() -> anyhow::Result<()> {
+    #[cfg(feature = "rerun")]
     let mut renderer = RerunHost::new("jaka_calibration")?;
     let mut physics_engine = RsBullet::new(rsbullet::Mode::Gui)?;
 
@@ -17,6 +19,7 @@ fn main() -> anyhow::Result<()> {
         .add_search_path("./asserts")?
         .set_gravity([0., 0., -9.81])?
         .set_step_time(Duration::from_secs_f64(1. / 240.))?;
+    #[cfg(feature = "rerun")]
     renderer.add_search_path("./asserts")?;
 
     let mut robot = physics_engine
@@ -25,12 +28,14 @@ fn main() -> anyhow::Result<()> {
         .base_fixed(true)
         .load()?;
 
+    #[cfg(feature = "rerun")]
     let robot_renderer = renderer
         .robot_builder::<FrankaEmika>("robot_2")
         .base([0.0, 0.0, 0.0])
         .base_fixed(true)
         .load()?;
 
+    #[cfg(feature = "rerun")]
     robot_renderer.attach_from(&mut robot)?;
 
     for _ in 0..100 {
