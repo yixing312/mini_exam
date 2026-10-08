@@ -1,34 +1,47 @@
 use std::f64::consts::FRAC_PI_2;
 
-use libjaka::JakaMini2;
+use mini_exam::SimJakaMini2;
 use robot_behavior::behavior::*;
 #[cfg(feature = "rerun")]
 use roplat_rerun::RerunHost;
-use rsbullet::{Mode, RsBullet};
+use rsbullet::RsBullet;
 
 fn main() -> anyhow::Result<()> {
-    let mut physics = RsBullet::new(Mode::Gui)?;
-
+    let limit = mini_exam::step_limit()?;
+    let mode = mini_exam::simulation_mode()?;
     #[cfg(feature = "rerun")]
-    let mut renderer = RerunHost::new("mini_exam")?;
+    let mut renderer = if matches!(&mode, rsbullet::Mode::Gui) {
+        Some(RerunHost::new("mini_exam")?)
+    } else {
+        None
+    };
+    let mut physics = RsBullet::new(mode)?;
+    physics.add_search_path(mini_exam::asset_dir())?;
 
     let mut robot = physics
-        .robot_builder::<JakaMini2>("exam_robot")
+        .robot_builder::<SimJakaMini2>("exam_robot")
         .base([0., 0., 0.])
+        .base_fixed(true)
         .load()?;
 
     #[cfg(feature = "rerun")]
-    let robot_render = renderer
-        .robot_builder("exam_robot")
-        .base([0., 0., 0.])
-        .load()?;
+    if let Some(renderer) = renderer.as_mut() {
+        renderer.add_search_path(mini_exam::asset_dir())?;
+        renderer
+            .robot_builder::<SimJakaMini2>("exam_robot")
+            .base([0., 0., 0.])
+            .base_fixed(true)
+            .load()?
+            .attach_from(&mut robot)?;
+    }
 
-    #[cfg(feature = "rerun")]
-    robot_render.attach_from(&mut robot)?;
+    robot.move_to::<JointSpace<6>>([FRAC_PI_2; 6])?;
 
-    robot.move_joint(&[FRAC_PI_2; _])?;
-
-    loop {
+    for step in 0.. {
+        if limit.is_some_and(|n| step >= n) {
+            break;
+        }
         physics.step()?;
     }
+    Ok(())
 }

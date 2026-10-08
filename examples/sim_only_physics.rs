@@ -1,34 +1,33 @@
 use std::{f64::consts::FRAC_PI_2, time::Duration};
 
-use libjaka::JakaMini2;
+use mini_exam::SimJakaMini2;
 use robot_behavior::behavior::*;
-use rsbullet::{Mode, RsBullet, RsBulletRobot};
+use rsbullet::{RsBullet, RsBulletRobot};
 
 fn main() -> anyhow::Result<()> {
-    let mut physics = RsBullet::new(Mode::Gui)?;
+    let limit = mini_exam::step_limit()?;
+    let mut physics = RsBullet::new(mini_exam::simulation_mode()?)?;
 
     physics
-        .add_search_path("./asserts")?
+        .add_search_path(mini_exam::asset_dir())?
         .set_gravity([0., 0., -10.])?
         .set_step_time(Duration::from_secs_f64(1. / 240.))?;
 
     // 仿真器基础配置
-    let mut robot: RsBulletRobot<JakaMini2> = physics
-        .robot_builder::<JakaMini2>("exam_robot")
+    let mut robot: RsBulletRobot<SimJakaMini2> = physics
+        .robot_builder::<SimJakaMini2>("exam_robot")
         .base([0., 0., 0.])
+        .base_fixed(true)
         .load()?;
 
-    // 给出你的机器人运动指令，当然你也可以在step循环里动态下发指令
-    robot.move_joint(&[FRAC_PI_2; _])?;
-    // you can also use
-    // ```rust
-    //     robot.move_cartesian(&${YOUR_POSE})?;
-    //     robot.move_traj_from_file("xxx")?;
-    //     robot.move_joint_traj(${YOUR_JOINT_LIST})?;
-    // ```
-    // and more...
+    // RsBullet 将运动加入队列；后续 step 推进轨迹与物理仿真。
+    robot.move_to::<JointSpace<6>>([FRAC_PI_2; 6])?;
 
-    loop {
+    for step in 0.. {
+        if limit.is_some_and(|n| step >= n) {
+            break;
+        }
         physics.step()?;
     }
+    Ok(())
 }

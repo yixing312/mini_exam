@@ -1,21 +1,21 @@
 use nalgebra::{self as na, Vector3};
 use std::{f64::consts::FRAC_PI_2, time::Duration};
 
-use libjaka::JakaMini2;
+use mini_exam::SimJakaMini2;
 use robot_behavior::{Entity, behavior::*};
 use rsbullet::RsBullet;
 
 fn main() -> anyhow::Result<()> {
-    let mut physics_engine = RsBullet::new(rsbullet::Mode::Gui)?;
+    let limit = mini_exam::step_limit()?;
+    let mut physics_engine = RsBullet::new(mini_exam::simulation_mode()?)?;
 
-    // TODO : change the path to your own
     physics_engine
-        .add_search_path("E:\\yixing\\code\\Robot-Exp\\drives\\asserts")?
+        .add_search_path(mini_exam::asset_dir())?
         .set_gravity([0., 0., -10.])?
         .set_step_time(Duration::from_secs_f64(1. / 240.))?;
 
     let mut robot_1 = physics_engine
-        .robot_builder::<JakaMini2>("robot_1")
+        .robot_builder::<SimJakaMini2>("robot_1")
         .base(na::Isometry3::from_parts(
             [0.0, 0.2, 0.0].into(),
             na::Rotation3::from_axis_angle(&Vector3::z_axis(), FRAC_PI_2).into(),
@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
         .base_fixed(true)
         .load()?;
     let mut robot_2 = physics_engine
-        .robot_builder::<JakaMini2>("robot_2")
+        .robot_builder::<SimJakaMini2>("robot_2")
         .base(na::Isometry3::from_parts(
             [0.0, -0.2, 0.0].into(),
             na::Rotation3::from_axis_angle(&Vector3::z_axis(), -FRAC_PI_2).into(),
@@ -62,12 +62,15 @@ fn main() -> anyhow::Result<()> {
         .base([0.1, 0., -0.25])
         .load()?;
 
-    for _ in 0..100 {
+    for step in 0.. {
+        if limit.is_some_and(|n| step >= n) {
+            break;
+        }
+        if step == 100 {
+            robot_1.move_to::<JointSpace<6>>([0.; 6])?;
+            robot_2.move_to::<JointSpace<6>>([0.; 6])?;
+        }
         physics_engine.step()?;
     }
-    robot_1.move_joint(&[0.; 6])?;
-    robot_2.move_joint(&[0.; 6])?;
-    loop {
-        physics_engine.step()?;
-    }
+    Ok(())
 }

@@ -1,7 +1,11 @@
 use libjaka::types::{TioVout, TioVoutMode};
 
+fn robot_ip() -> String {
+    std::env::var("JAKA_IP").unwrap_or_else(|_| "10.5.5.100".to_owned())
+}
+
 fn main() -> anyhow::Result<()> {
-    let mut robot = libjaka::JakaMini2::new("10.5.5.100");
+    let mut robot = libjaka::JakaMini2::new(&robot_ip());
     robot.set_tio_vout(TioVout::Enable(TioVoutMode::V24V))?;
     let vout = robot.get_tio_vout()?;
 
@@ -17,11 +21,11 @@ fn main() -> anyhow::Result<()> {
 mod tests {
     use libjaka::JakaMini2;
     use libjaka::types::{TioVout, TioVoutMode};
-    use robot_behavior::behavior::*;
 
     #[test]
+    #[ignore = "requires a real JAKA robot and explicit operator authorization"]
     fn enable_vout_12v() -> anyhow::Result<()> {
-        let mut robot = JakaMini2::new("10.5.5.100");
+        let mut robot = JakaMini2::new(&super::robot_ip());
         robot.set_tio_vout(TioVout::Enable(TioVoutMode::V12V))?;
         Ok(())
     }
